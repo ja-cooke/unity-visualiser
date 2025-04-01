@@ -1,12 +1,11 @@
 using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
 
-namespace Visualiser.Plot {
-    
-    public class Setup{
+namespace Visualiser {
+    public class Plot{
         private GameObject[] plot;
 
-        public Setup(Transform graphBoundaryT, int bufferSize){
+        public Plot(Transform graphBoundaryT, int bufferSize){
 
             plot = new GameObject[bufferSize];
                 
@@ -22,13 +21,31 @@ namespace Visualiser.Plot {
                 // Scale the size of each individual cube
                 cube.transform.localScale = new Vector3(0.005f,0.005f,0.005f);
                 plot[datum] = cube;
-                }
+            }
+        }
+
+        /* 
+        * Plots 2D waveform within a 3D space
+        */
+        public void update(float[] dataArray, int audioBufferSize){
+            // x coordinate is depth, y coordinate is amplitude, z coordinate is time / frequency axis
+            int n = 0;
+            foreach (float datum in dataArray){
+                // 2D plot
+                float xPos = 0;
+                // Divide by 2 for a vertically centred plot of scale -0.5 <-> +0.5
+                float yPos = dataArray[n]/2;
+                // -0.5f offset for a horizontally centred plot
+                float zPos = -0.5f + (n/(float)audioBufferSize);
+
+                plot[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
+                n++;
+            }
 
         }
 
         public GameObject[] getPlot(){
             return plot;
         }
-
     }
 }
