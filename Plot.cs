@@ -1,11 +1,14 @@
 using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
 
-namespace Visualiser {
-    public class Plot{
+namespace Visualiser 
+{
+    public class Plot
+    {
         private GameObject[] plot;
 
-        public Plot(Transform graphBoundaryT, int bufferSize){
+        public Plot(Transform graphBoundaryT, int bufferSize)
+        {
 
             plot = new GameObject[bufferSize];
                 
@@ -27,7 +30,8 @@ namespace Visualiser {
         /* 
         * Plots 2D waveform within a 3D space
         */
-        public void update(float[] dataArray, int audioBufferSize){
+        public void update(float[] dataArray, int audioBufferSize)
+        {
             // x coordinate is depth, y coordinate is amplitude, z coordinate is time / frequency axis
             int n = 0;
             foreach (float datum in dataArray){
@@ -44,7 +48,8 @@ namespace Visualiser {
 
         }
 
-        public GameObject[] getPlot(){
+        public GameObject[] getPlot()
+        {
             return plot;
         }
     }
