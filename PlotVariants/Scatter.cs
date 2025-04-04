@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
+using UnityEngine.Rendering;
 
 namespace Visualiser
 {
@@ -9,6 +12,7 @@ namespace Visualiser
         private GameObject[] plot;
         private ScatterType scatterType;
         private const float pixelScale = 0.005f;
+        private float peakMagnitude = 0;
             
         public Scatter(Transform graphBoundaryT, int bufferSize, ScatterType scatterType){
             plot = new GameObject[bufferSize];
@@ -32,7 +36,8 @@ namespace Visualiser
         public override void update(SignalData signalDataPacket)
         {
             Dictionary<ScatterType, GameObject[]> method = new Dictionary<ScatterType, GameObject[]>{
-                {ScatterType.TimeLin, timeLin(signalDataPacket)}
+                {ScatterType.TimeLin, timeLin(signalDataPacket)},
+                {ScatterType.FreqLin, freqLin(signalDataPacket)},
             };
 
             plot = method[scatterType];
@@ -56,6 +61,29 @@ namespace Visualiser
                 float yPos = dataArray[n]/2;
                 // -0.5f offset for a horizontally centred plot
                 float zPos = -0.5f + (n/(float)audioBufferSize);
+
+                plot[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
+                n++;
+            }
+            return plot;
+        }
+
+        private GameObject[] freqLin(SignalData signalDataPacket)
+        {
+            // x coordinate is depth, y coordinate is magnitude, z coordinate is frequency axis
+            float[] dataArray = signalDataPacket.FreqMagnitude;
+            int audioBufferSize = signalDataPacket.BufferSize;
+
+            int n = 0;
+            foreach (float datum in dataArray)
+            {
+                peakMagnitude = (peakMagnitude > dataArray[n]) ? peakMagnitude : dataArray[n];
+                // 2D plot
+                float xPos = 0;
+                // Offset by -0.5 to rest on the bottom face of the boundary
+                float yPos = dataArray[n]/peakMagnitude - 0.5f;
+                // 0.5f offset for a horizontally centred plot
+                float zPos = 0.5f - (n/(float)audioBufferSize);
 
                 plot[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
                 n++;
