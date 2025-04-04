@@ -49,7 +49,7 @@ namespace Visualiser {
 
             // Find the Graph Boundary
             graphBoundaryT = this.transform.Find(visualiserBoundary);
-            visualiser = new Plot(graphBoundaryT, audioBufferSize, PlotType.TimeLin);
+            visualiser = new Plot(graphBoundaryT, audioBufferSize, ChartType.Scatter, ScatterType.TimeLin);
         }
 
         // Update is called once per frame

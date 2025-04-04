@@ -6,14 +6,14 @@ namespace Visualiser
     public class Plot
     {
         private Chart plot;
-        private PlotType plotType;
+        private ChartType chartType;
 
-        public Plot(Transform graphBoundaryT, int bufferSize, PlotType plotType)
+        public Plot(Transform graphBoundaryT, int bufferSize, ChartType chartType, ScatterType scatterType)
         {       
-            Dictionary<PlotType, Chart> method = new Dictionary<PlotType, Chart>{
-                {PlotType.TimeLin, new Scatter(graphBoundaryT, bufferSize, plotType)}
+            Dictionary<ChartType, Chart> method = new Dictionary<ChartType, Chart>{
+                {ChartType.Scatter, new Scatter(graphBoundaryT, bufferSize, scatterType)}
             };
-            plot = method[plotType];
+            plot = method[chartType];
         }
 
         public void update(float[] dataArray, int audioBufferSize)

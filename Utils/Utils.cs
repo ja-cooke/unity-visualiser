@@ -1,10 +1,16 @@
 namespace Visualiser{
-    public enum PlotType 
+    public enum ScatterType 
     {
         TimeLin,
         FreqLin,
         FreqLog,
         FreqLogLog,
+    };
+
+    public enum ChartType 
+    {
+        Scatter,
+        Bar,
     };
 
 }

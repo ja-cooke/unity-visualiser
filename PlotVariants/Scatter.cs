@@ -7,12 +7,12 @@ namespace Visualiser
     public class Scatter : Chart
     {
         private GameObject[] plot;
-        private PlotType plotType;
-        private float pixelScale = 0.005f;
+        private ScatterType scatterType;
+        private const float pixelScale = 0.005f;
             
-        public Scatter(Transform graphBoundaryT, int bufferSize, PlotType plotType){
+        public Scatter(Transform graphBoundaryT, int bufferSize, ScatterType scatterType){
             plot = new GameObject[bufferSize];
-            this.plotType = plotType;
+            this.scatterType = scatterType;
             
             // Instantiate cubes in the game world
             for (int datum = 0; datum<bufferSize; datum++)
@@ -31,11 +31,11 @@ namespace Visualiser
 
         public override void update(float[] dataArray, int audioBufferSize)
         {
-            Dictionary<PlotType, GameObject[]> method = new Dictionary<PlotType, GameObject[]>{
-                {PlotType.TimeLin, timeLin(dataArray, audioBufferSize)}
+            Dictionary<ScatterType, GameObject[]> method = new Dictionary<ScatterType, GameObject[]>{
+                {ScatterType.TimeLin, timeLin(dataArray, audioBufferSize)}
             };
 
-            plot = method[plotType];
+            plot = method[scatterType];
         }
 
         /* 
