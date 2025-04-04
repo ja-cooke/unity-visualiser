@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using Oculus.Interaction.Editor;
 using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
 
@@ -5,52 +8,26 @@ namespace Visualiser
 {
     public class Plot
     {
-        private GameObject[] plot;
+        private Chart plot;
+        private PlotType plotType;
 
-        public Plot(Transform graphBoundaryT, int bufferSize)
-        {
-
-            plot = new GameObject[bufferSize];
-                
-            // Instantiate cubes in the game world
-            for (int datum = 0; datum<bufferSize; datum++){
-
-                // Generate a cube
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                // Set the parent as the GraphBoundary
-                cube.transform.SetParent(graphBoundaryT);
-                // Set the coordinates to local to the graph boundary
-                cube.transform.localPosition = Vector3.zero;
-                // Scale the size of each individual cube
-                cube.transform.localScale = new Vector3(0.005f,0.005f,0.005f);
-                plot[datum] = cube;
-            }
+        public Plot(Transform graphBoundaryT, int bufferSize, PlotType plotType)
+        {       
+            Dictionary<PlotType, Chart> method = new Dictionary<PlotType, Chart>{
+                {PlotType.TimeLin, new Scatter(graphBoundaryT, bufferSize, plotType)}
+            };
+            plot = method[plotType];
         }
 
-        /* 
-        * Plots 2D waveform within a 3D space
-        */
         public void update(float[] dataArray, int audioBufferSize)
         {
-            // x coordinate is depth, y coordinate is amplitude, z coordinate is time / frequency axis
-            int n = 0;
-            foreach (float datum in dataArray){
-                // 2D plot
-                float xPos = 0;
-                // Divide by 2 for a vertically centred plot of scale -0.5 <-> +0.5
-                float yPos = dataArray[n]/2;
-                // -0.5f offset for a horizontally centred plot
-                float zPos = -0.5f + (n/(float)audioBufferSize);
-
-                plot[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
-                n++;
-            }
+            plot.update(dataArray, audioBufferSize);
 
         }
 
         public GameObject[] getPlot()
         {
-            return plot;
+            return plot.getPlot();
         }
     }
 }

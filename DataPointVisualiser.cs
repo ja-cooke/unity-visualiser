@@ -21,7 +21,7 @@ namespace Visualiser {
          * Ensure that the string value for VisualiserBoundary matches the
          * name of a bounding cube GameObject in the Unity Scene.
          */
-        private const string VisualiserBoundary = "GraphBoundary";
+        private const string visualiserBoundary = "GraphBoundary";
 
         // ---------------------------------------------------------- //
         // ----------------------- Declarations --------------------- //
@@ -50,8 +50,8 @@ namespace Visualiser {
             audioSource.Play();
 
             // Find the Graph Boundary
-            graphBoundaryT = this.transform.Find(VisualiserBoundary);
-            visualiser = new Plot(graphBoundaryT, audioBufferSize);
+            graphBoundaryT = this.transform.Find(visualiserBoundary);
+            visualiser = new Plot(graphBoundaryT, audioBufferSize, PlotType.TimeLin);
         }
 
         // Update is called once per frame
