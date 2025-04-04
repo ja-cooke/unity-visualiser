@@ -31,22 +31,11 @@ namespace Visualiser
 
         public override void update(float[] dataArray, int audioBufferSize)
         {
-            base.update(dataArray, audioBufferSize);
+            Dictionary<PlotType, GameObject[]> method = new Dictionary<PlotType, GameObject[]>{
+                {PlotType.TimeLin, timeLin(dataArray, audioBufferSize)}
+            };
 
-            switch(this.plotType){
-                case PlotType.TimeLin:
-                    timeLin(dataArray, audioBufferSize);
-                    break;
-                case PlotType.FreqLin:
-                    break;
-                case PlotType.FreqLog:
-                    break;
-                case PlotType.FreqLogLog:
-                    break;
-                default:
-                    break;
-            }
-            
+            plot = method[plotType];
         }
 
         /* 
