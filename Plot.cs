@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Oculus.Interaction.Editor;
-using Unity.XR.CoreUtils.Datums;
 using UnityEngine;
 
 namespace Visualiser 
@@ -22,7 +19,6 @@ namespace Visualiser
         public void update(float[] dataArray, int audioBufferSize)
         {
             plot.update(dataArray, audioBufferSize);
-
         }
 
         public GameObject[] getPlot()
