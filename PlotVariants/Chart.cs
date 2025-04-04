@@ -6,7 +6,7 @@ namespace Visualiser
     {
         private GameObject[] plot;
 
-        public virtual void update(float[] dataArray, int audioBufferSize){}
+        public virtual void update(SignalData signalDataPacket){}
 
         public GameObject[] getPlot()
         {

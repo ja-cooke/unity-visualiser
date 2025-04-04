@@ -29,10 +29,10 @@ namespace Visualiser
             }
         }
 
-        public override void update(float[] dataArray, int audioBufferSize)
+        public override void update(SignalData signalDataPacket)
         {
             Dictionary<ScatterType, GameObject[]> method = new Dictionary<ScatterType, GameObject[]>{
-                {ScatterType.TimeLin, timeLin(dataArray, audioBufferSize)}
+                {ScatterType.TimeLin, timeLin(signalDataPacket)}
             };
 
             plot = method[scatterType];
@@ -41,9 +41,12 @@ namespace Visualiser
         /* 
         * Plots 2D waveform within a 3D space
         */
-        private GameObject[] timeLin(float[] dataArray, int audioBufferSize)
+        private GameObject[] timeLin(SignalData signalDataPacket)
         {
             // x coordinate is depth, y coordinate is amplitude, z coordinate is time / frequency axis
+            float[] dataArray = signalDataPacket.TimeAmplitude;
+            int audioBufferSize = signalDataPacket.BufferSize;
+            
             int n = 0;
             foreach (float datum in dataArray)
             {

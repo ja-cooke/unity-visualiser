@@ -16,9 +16,9 @@ namespace Visualiser
             plot = method[chartType];
         }
 
-        public void update(float[] dataArray, int audioBufferSize)
+        public void update(SignalData signalDataPacket)
         {
-            plot.update(dataArray, audioBufferSize);
+            plot.update(signalDataPacket);
         }
 
         public GameObject[] getPlot()

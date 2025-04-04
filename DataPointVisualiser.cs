@@ -59,8 +59,10 @@ namespace Visualiser {
             audioSource.GetOutputData(audioDataArray, 1);
             audioSource.GetSpectrumData(freqDataArray, 1, FFTWindow.BlackmanHarris);
 
+            SignalData audioDataPacket = new SignalData(audioDataArray, freqDataArray, audioBufferSize);
+
             // Refreshes the visualiser
-            visualiser.update(audioDataArray, audioBufferSize);
+            visualiser.update(audioDataPacket);
         }
     }
 }
