@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Visualiser{
     public enum ScatterType 
     {
@@ -13,7 +15,8 @@ namespace Visualiser{
         Bar,
     };
 
-    public struct SignalData{
+    public struct SignalData
+    {
         public SignalData(float[] signalWaveform, float[] spectrumData, int bufferSize){
             BufferSize = bufferSize;
             TimeAmplitude = signalWaveform;
@@ -22,6 +25,17 @@ namespace Visualiser{
         public int BufferSize { get; }
         public float[] TimeAmplitude { get; }
         public float[] FreqMagnitude { get; }
+    }
+
+    public struct VisualiserFrame
+    {
+        public VisualiserFrame(GameObject[] visualisation, SignalData signalData)
+        {
+            Visualisation = visualisation;
+            SignalData = signalData;
+        }
+        public SignalData SignalData { get; set; }
+        public GameObject[] Visualisation { get; set; }
     }
 
 }
