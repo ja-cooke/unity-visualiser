@@ -32,6 +32,9 @@ namespace Visualiser
                 cube.transform.localPosition = Vector3.zero;
                 // Scale the size of each individual cube
                 cube.transform.localScale = Vector3.one * pixelScale;
+                // Set all meshes to invisible by default
+                cube.GetComponent<MeshRenderer>().enabled = false;
+                // Save the mesh
                 meshArray[datum] = cube;
             }
             plot = new VisualiserFrame(meshArray, new SignalData());
@@ -45,6 +48,7 @@ namespace Visualiser
                 {ScatterType.FreqLin, freqLin},
                 {ScatterType.FreqLog, freqLog},
                 {ScatterType.FreqLogLog, freqLogLog},
+                {ScatterType.FreqLogLogE, freqLogLogE},
             };
 
             plot = method[scatterType](signalDataPacket);
@@ -170,6 +174,53 @@ namespace Visualiser
                 
                 float zPos = - alignment - freqAxis[n];
 
+                plot.Visualisation[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
+            }
+            return plot;
+        }
+
+        private VisualiserFrame freqLogLogE(SignalData signalDataPacket)
+        {
+            plot.SignalData = signalDataPacket;
+            const float minDbVal = -120;
+            const float alignment = 0.5f;
+            const float depth = 0f;
+
+            // x coordinate is depth, y coordinate is magnitude, z coordinate is frequency axis
+            float[] dataArray = signalDataPacket.FreqMagnitude;
+            int audioBufferSize = signalDataPacket.BufferSize;
+
+            int nyquist = signalDataPacket.BufferSize/2;
+            float freqRes = 1f/(float)signalDataPacket.BufferSize;
+
+            float[] freqAxis = new float[signalDataPacket.BufferSize];
+
+            // Determines values and applies log scaling for frequency axis
+            for (int i = 0; i < audioBufferSize; i++){
+                freqAxis[i] = (float)Math.Log10(freqRes + freqRes*i)/(float)Math.Log10(audioBufferSize);
+            }
+            // Determines values and applies log scaling for magnitude axis
+            for (int i = 0; i < audioBufferSize; i++){
+                // Uses voltage decibel scale: y (dB) = 20 * log10(x/ref)
+                dataArray[i] = 20f*(float)Math.Log10(dataArray[i]);
+
+                // Out of bounds pixel behaviour
+                outOfBounds(i, minDbVal, "hide");
+            }
+
+            // Determine the reduced data set for plotting (reduces high f info)
+            int[] indices = Utils.ReducePlotData(plot);
+
+            foreach (int n in indices)
+            {
+                // 2D plot
+                float xPos = depth;
+                // Offset to rest on the top face of the boundary
+                float yPos = dataArray[n]/(-minDbVal) + alignment;
+                
+                float zPos = - alignment - freqAxis[n];
+
+                plot.Visualisation[n].GetComponent<MeshRenderer>().enabled = true;
                 plot.Visualisation[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
             }
             return plot;
