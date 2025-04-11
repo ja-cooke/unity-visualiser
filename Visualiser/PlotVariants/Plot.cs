@@ -16,14 +16,14 @@ namespace Visualiser
             plot = method[chartType];
         }
 
-        public void update(SignalData signalDataPacket)
+        public void Update(SignalData dataPacket)
         {
-            plot.update(signalDataPacket);
+            plot.Update(dataPacket);
         }
 
-        public GameObject[] getPlot()
+        public ScatterPointSeries GetPlot()
         {
-            return plot.getPlot();
+            return plot.GetSeries();
         }
     }
 }

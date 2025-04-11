@@ -1,6 +1,7 @@
 using UnityEngine;
 
-namespace Visualiser {
+namespace Visualiser 
+{
     public class DataPointVisualiser : MonoBehaviour
     {
         // ---------------------------------------------------------- //
@@ -49,6 +50,10 @@ namespace Visualiser {
 
             // Find the Graph Boundary
             graphBoundaryT = this.transform.Find(visualiserBoundary);
+
+            Debug.Log("GRAPH BOUNDARY TEST:");
+            Debug.Log(graphBoundaryT.gameObject.name);
+
             visualiser = new Plot(graphBoundaryT, audioBufferSize, ChartType.Scatter, ScatterType.FreqLogLog);
         }
 
@@ -59,10 +64,10 @@ namespace Visualiser {
             audioSource.GetOutputData(audioDataArray, 1);
             audioSource.GetSpectrumData(freqDataArray, 1, FFTWindow.BlackmanHarris);
 
-            SignalData audioDataPacket = new SignalData(audioDataArray, freqDataArray, audioBufferSize);
+            SignalData audioDataPacket = new(audioDataArray, freqDataArray, audioBufferSize, audioSource.clip.frequency);
 
             // Refreshes the visualiser
-            visualiser.update(audioDataPacket);
+            visualiser.Update(audioDataPacket);
         }
     }
 }

@@ -2,7 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using JetBrains.Annotations;
 using NUnit.Framework.Constraints;
+using Unity.VisualScripting;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.Rendering;
@@ -11,177 +16,176 @@ namespace Visualiser
 {
     public class Scatter : Chart
     {
-        private VisualiserFrame plot;
-        private GameObject[] meshArray;
-        private ScatterType scatterType;
-        private const float pixelScale = 0.005f;
-        private float peakMagnitude = 0;
+        private readonly ScatterType ScatterType;
+        private readonly ScatterPointSeries Series;
+        private float PeakMagnitude = 0;
+        
             
         public Scatter(Transform graphBoundaryT, int bufferSize, ScatterType scatterType){
-            meshArray = new GameObject[bufferSize];
-            this.scatterType = scatterType;
+            ScatterType = scatterType;
             
-            // Instantiate cubes in the game world
-            for (int datum = 0; datum<bufferSize; datum++)
-            {
-                // Generate a cube
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                // Set the parent as the GraphBoundary
-                cube.transform.SetParent(graphBoundaryT);
-                // Set the coordinates to local to the graph boundary
-                cube.transform.localPosition = Vector3.zero;
-                // Scale the size of each individual cube
-                cube.transform.localScale = Vector3.one * pixelScale;
-                // Set all meshes to invisible by default
-                cube.GetComponent<MeshRenderer>().enabled = false;
-                // Save the mesh
-                meshArray[datum] = cube;
-            }
-            plot = new VisualiserFrame(meshArray, new SignalData());
+            // Instantiate GameObjects in the game world
+            Series = new ScatterPointSeries(bufferSize, graphBoundaryT);
         }
 
-        public override void update(SignalData signalDataPacket)
+        public override void Update(SignalData dataPacket)
         {
-            Dictionary<ScatterType, Func<SignalData, VisualiserFrame>> method = new Dictionary<ScatterType, Func<SignalData, VisualiserFrame>>
+            Dictionary<ScatterType, Action<SignalData>> axes = new()
             {
-                {ScatterType.TimeLin, timeLin},
-                {ScatterType.FreqLin, freqLin},
-                {ScatterType.FreqLog, freqLog},
-                {ScatterType.FreqLogLog, freqLogLog},
-                {ScatterType.FreqLogLogE, freqLogLogE},
+                {ScatterType.TimeLin, TimeLin},
+                {ScatterType.FreqLin, FreqLin},
+                {ScatterType.FreqLog, FreqLog},
+                {ScatterType.FreqLogLog, FreqLogLog},
             };
 
-            plot = method[scatterType](signalDataPacket);
+            axes[ScatterType](dataPacket);
         }
 
         /* 
         * Plots 2D waveform within a 3D space
         */
-        private VisualiserFrame timeLin(SignalData signalDataPacket)
+        private void TimeLin(SignalData dataPacket)
         {
+            // Initialise arrays of the correct size to hold the plot data
+            int N =  dataPacket.TimeAmplitude.Length;
+            float[] xData = new float[N];
+            float[] yData = new float[N];
+            float[] zData = new float[N];
+
             // x coordinate is depth, y coordinate is amplitude, z coordinate is time / frequency axis
-            float[] dataArray = signalDataPacket.TimeAmplitude;
-            int audioBufferSize = signalDataPacket.BufferSize;
+            float[] dataArray = dataPacket.TimeAmplitude;
             
-            int n = 0;
-            foreach (float datum in dataArray)
+            for (int n = 0; n < N; n++)
             {
                 // 2D plot
-                float xPos = 0;
+                xData[n] = 0;
                 // Divide by 2 for a vertically centred plot of scale -0.5 <-> +0.5
-                float yPos = dataArray[n]/2;
+                yData[n] = dataArray[n]/2;
                 // -0.5f offset for a horizontally centred plot
-                float zPos = -0.5f + (n/(float)audioBufferSize);
-
-                plot.Visualisation[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
-                n++;
+                zData[n] = -0.5f + (n/(float)N);
             }
-            return plot;
+            Series.Update(new PlotData3(xData, yData, zData));
         }
 
-        private VisualiserFrame freqLin(SignalData signalDataPacket)
+        private void FreqLin(SignalData dataPacket)
         {
-            // x coordinate is depth, y coordinate is magnitude, z coordinate is frequency axis
-            float[] dataArray = signalDataPacket.FreqMagnitude;
-            int audioBufferSize = signalDataPacket.BufferSize;
+            // Initialise arrays of the correct size to hold the plot data
+            int N =  dataPacket.FreqMagnitude.Length;
+            float[] xData = new float[N];
+            float[] yData = new float[N];
+            float[] zData = new float[N];
 
-            int n = 0;
-            foreach (float datum in dataArray)
+            // x coordinate is depth, y coordinate is magnitude, z coordinate is frequency axis
+            float[] dataArray = dataPacket.FreqMagnitude;
+
+            for (int n = 0; n < N; n++)
             {
-                peakMagnitude = (peakMagnitude > dataArray[n]) ? peakMagnitude : dataArray[n];
                 // 2D plot
-                float xPos = 0;
+                xData[n] = 0;
+                // Scale the freqency data so that it is normalised to the highest level
+                PeakMagnitude = (PeakMagnitude > dataArray[n]) ? PeakMagnitude : dataArray[n];
                 // Offset by -0.5 to rest on the bottom face of the boundary
-                float yPos = dataArray[n]/peakMagnitude - 0.5f;
+                yData[n] = dataArray[n]/PeakMagnitude - 0.5f;
                 // 0.5f offset for a horizontally centred plot
-                float zPos = 0.5f - (n/(float)audioBufferSize);
-
-                plot.Visualisation[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
-                n++;
+                zData[n] = 0.5f - (n/(float)N);
             }
-            return plot;
+            Series.Update(new PlotData3(xData, yData, zData));
         }
 
-        private VisualiserFrame freqLog(SignalData signalDataPacket)
+        private void FreqLog(SignalData dataPacket)
         {
+            // Initialise arrays of the correct size to hold the plot data
+            int N =  dataPacket.FreqMagnitude.Length;
+            int bufferSize = dataPacket.BufferSize;
+            float[] xData = new float[N];
+            float[] yData = new float[N];
+            float[] zData = new float[N];
+
             // x coordinate is depth, y coordinate is magnitude, z coordinate is frequency axis
-            float[] dataArray = signalDataPacket.FreqMagnitude;
-            int audioBufferSize = signalDataPacket.BufferSize;
+            float[] dataArray = dataPacket.FreqMagnitude;
 
-            int nyquist = signalDataPacket.BufferSize/2;
-            float freqRes = 1f/(float)signalDataPacket.BufferSize;
+            // ---- AXIS SCALING ----
 
-            float[] freqAxis = new float[signalDataPacket.BufferSize];
+            int nyquist = dataPacket.BufferSize/2;
+            float freqRes = 1f/(float)dataPacket.BufferSize;
+            float[] freqAxis = new float[dataPacket.BufferSize];
 
             // Determines values and applies log scaling for frequency axis
-            for (int i = 0; i < 1024; i++){
-                freqAxis[i] = (float)Math.Log10(freqRes + freqRes*i)/(float)Math.Log10(1024);
+            for (int i = 0; i < bufferSize; i++){
+                freqAxis[i] = (float)Math.Log10(freqRes + freqRes*i)/(float)Math.Log10(bufferSize);
             }
 
-            int n = 0;
-            foreach (float datum in dataArray)
+            // ---- PLOT POSITIONS ----
+
+            for (int n = 0; n < N; n++)
             {
-                peakMagnitude = (peakMagnitude > dataArray[n]) ? peakMagnitude : dataArray[n];
+                PeakMagnitude = (PeakMagnitude > dataArray[n]) ? PeakMagnitude : dataArray[n];
                 // 2D plot
-                float xPos = 0;
+                xData[n] = 0;
                 // Offset by -0.5 to rest on the bottom face of the boundary
-                float yPos = dataArray[n]/peakMagnitude - 0.5f;
+                yData[n] = dataArray[n]/PeakMagnitude - 0.5f;
                 
-                float zPos = - 0.5f - freqAxis[n];
-
-                plot.Visualisation[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
-                n++;
+                zData[n] = - 0.5f - freqAxis[n];
             }
-            return plot;
+            Series.Update(new PlotData3(xData, yData, zData));
         }
 
-        private VisualiserFrame freqLogLog(SignalData signalDataPacket)
+        private void FreqLogLog(SignalData dataPacket)
         {
-            plot.SignalData = signalDataPacket;
+            // Initialise arrays of the correct size to hold the plot data
+            int N =  dataPacket.FreqMagnitude.Length;
+            int bufferSize = dataPacket.BufferSize;
+            float[] xData = new float[N];
+            float[] yData = new float[N];
+            float[] zData = new float[N];
+
+            // SERIES SETTINGS
             const float minDbVal = -120;
             const float alignment = 0.5f;
             const float depth = 0f;
 
             // x coordinate is depth, y coordinate is magnitude, z coordinate is frequency axis
-            float[] dataArray = signalDataPacket.FreqMagnitude;
-            int audioBufferSize = signalDataPacket.BufferSize;
+            float[] dataArray = dataPacket.FreqMagnitude;
 
-            int nyquist = signalDataPacket.BufferSize/2;
-            float freqRes = 1f/(float)signalDataPacket.BufferSize;
+            // ---- AXIS SCALING ----
 
-            float[] freqAxis = new float[signalDataPacket.BufferSize];
+            int nyquist = dataPacket.BufferSize/2;
+            float freqRes = 1f/(float)dataPacket.BufferSize;
+
+            float[] freqAxis = new float[bufferSize];
 
             // Determines values and applies log scaling for frequency axis
-            for (int i = 0; i < audioBufferSize; i++){
-                freqAxis[i] = (float)Math.Log10(freqRes + freqRes*i)/(float)Math.Log10(audioBufferSize);
+            for (int i = 0; i < bufferSize; i++){
+                freqAxis[i] = (float)Math.Log10(freqRes + freqRes*i)/(float)Math.Log10(bufferSize);
             }
             // Determines values and applies log scaling for magnitude axis
-            for (int i = 0; i < audioBufferSize; i++){
+            for (int i = 0; i < bufferSize; i++){
                 // Uses voltage decibel scale: y (dB) = 20 * log10(x/ref)
                 dataArray[i] = 20f*(float)Math.Log10(dataArray[i]);
 
                 // Out of bounds pixel behaviour
-                outOfBounds(i, minDbVal, "hide");
+                //outOfBounds(i, minDbVal, "hide");
             }
 
-            
-            for (int n = 0; n < audioBufferSize; n++)
+            // ---- PLOT POSITIONS ----
+
+            for (int n = 0; n < N; n++)
             {
                 // 2D plot
-                float xPos = depth;
+                xData[n] = depth;
                 // Offset to rest on the top face of the boundary
-                float yPos = dataArray[n]/(-minDbVal) + alignment;
+                yData[n] = dataArray[n]/(-minDbVal) + alignment;
                 
-                float zPos = - alignment - freqAxis[n];
-
-                plot.Visualisation[n].transform.localPosition =  new Vector3(xPos,yPos,zPos);
+                zData[n] = - alignment - freqAxis[n];
             }
-            return plot;
+            Series.Update(new PlotData3(xData, yData, zData));
         }
 
-        private VisualiserFrame freqLogLogE(SignalData signalDataPacket)
+        /*
+
+        private void FreqLogLogE(SignalData signalDataPacket)
         {
-            plot.SignalData = signalDataPacket;
+            //plot.SignalData = signalDataPacket;
             const float minDbVal = -120;
             const float alignment = 0.5f;
             const float depth = 0f;
@@ -209,7 +213,7 @@ namespace Visualiser
             }
 
             // Determine the reduced data set for plotting (reduces high f info)
-            int[] indices = Utils.ReducePlotData(plot);
+            //int[] indices = Utils.ReduceSpectrumData(plot);
 
             foreach (int n in indices)
             {
@@ -225,7 +229,9 @@ namespace Visualiser
             }
             return plot;
         }
+        */
 
+        /*
         private void outOfBounds(int elementIndex, float minDbVal, string behaviour){
             ref float plotValue = ref plot.SignalData.FreqMagnitude[elementIndex];
             
@@ -252,5 +258,6 @@ namespace Visualiser
             }
             
         }
+        */
     }
 }
