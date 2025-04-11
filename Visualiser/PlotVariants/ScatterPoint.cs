@@ -33,7 +33,7 @@ namespace Visualiser {
         {
             Coordinates = newCoordinates;
 
-            if (Coordinates.magnitude != float.NaN)
+            if (!float.IsNaN(Coordinates.sqrMagnitude))
             {
                 Primitive.transform.localPosition = Coordinates;
                 Visible(true);

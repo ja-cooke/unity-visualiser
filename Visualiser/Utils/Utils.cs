@@ -80,11 +80,11 @@ namespace Visualiser
                 for (int i = 0; i < NumPoints; i++)
                 {
                     bool xOutOfBoundsFlag, yOutOfBoundsFlag, zOutOfBoundsFlag;
-                    xOutOfBoundsFlag = ((-0.5f >= xData[i]) & (xData[i] >= 0.5f)) ? false : true;
-                    yOutOfBoundsFlag = ((-0.5f >= yData[i]) & (yData[i] >= 0.5f)) ? false : true;
-                    zOutOfBoundsFlag = ((-0.5f >= zData[i]) & (zData[i] >= 0.5f)) ? false : true;
+                    xOutOfBoundsFlag = -0.5f > xData[i] | xData[i] > 0.5f;
+                    yOutOfBoundsFlag = -0.5f > yData[i] | yData[i] > 0.5f;
+                    zOutOfBoundsFlag = -0.5f > zData[i] | zData[i] > 0.5f;
 
-                    if (!xOutOfBoundsFlag & !yOutOfBoundsFlag & !zOutOfBoundsFlag)
+                    if (xOutOfBoundsFlag | yOutOfBoundsFlag | zOutOfBoundsFlag)
                     {
                         Data[i] = new Vector3(float.NaN, float.NaN, float.NaN);
                     }
