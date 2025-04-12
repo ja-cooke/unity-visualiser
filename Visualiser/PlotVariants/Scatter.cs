@@ -132,11 +132,8 @@ namespace Visualiser
 
         private void FreqLogLog(SignalData dataPacket)
         {
-            Debug.Log("LENGTH SHOULD DECREASE");
-            Debug.Log(dataPacket.FreqMagnitude.Length);
             // Data Reduction Step
             dataPacket = Utils.ReduceSpectrumData(dataPacket);
-            Debug.Log(dataPacket.FreqMagnitude.Length);
 
             // Initialise arrays of the correct size to hold the plot data
             int N =  dataPacket.FreqMagnitude.Length;
