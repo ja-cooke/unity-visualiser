@@ -106,7 +106,7 @@ namespace Visualiser
     {
         public static SignalData ReduceSpectrumData(SignalData dataPacket)
         {
-            float reductionFactor = 1.05f;
+            float reductionFactor = 1.2f;
             int frameLength = dataPacket.FreqMagnitude.Length;
             float[] reducedData = new float[frameLength];
 
@@ -123,13 +123,13 @@ namespace Visualiser
                     reducedLength++;
                 }
                 /* 
-                * i = reductionFactor^(j+1) :: rounded down to integer
-                * Makes a :: y = e^x :: shaped curve from which to
+                * i = j + reductionFactor^(j/4) - 1 :: rounded down to integer
+                * Makes a :: y = x + e^kx :: shaped curve from which to
                 * choose new indexes to include. 
                 * Low indices (1, 2, 3...) will almost always be included
                 * but higher indices are skipped with increasing frequency.
                 */
-                i = (int)Math.Floor(Math.Pow(reductionFactor,++j));;
+                i = j + (int)Math.Floor(Math.Pow(reductionFactor,(float)++j/4f)) - 1;
             }
 
             float[] reducedArray = new float[reducedLength];
