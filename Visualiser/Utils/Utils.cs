@@ -104,33 +104,45 @@ namespace Visualiser
 
     public class Utils
     {
-        public static int[] ReduceSpectrumData(SignalData dataPacket)
+        public static SignalData ReduceSpectrumData(SignalData dataPacket)
         {
-            float reductionFactor = 1.2f;
-            int[] indices = new int[0];
+            float reductionFactor = 1.05f;
             int frameLength = dataPacket.FreqMagnitude.Length;
+            float[] reducedData = new float[frameLength];
 
             float[] x = dataPacket.FreqMagnitude;
 
             float lastElement = 0;
-
+            int reducedLength = 0;
             int j = 0;
             for (int i = 0; i < frameLength; i++){
                 // If this element hasn't already been added:
                 if (x[i] != lastElement){
-                    indices.Concat(new int[] {i}).ToArray();
+                    reducedData[i] = x[i];
                     lastElement = x[i];
+                    reducedLength++;
                 }
                 /* 
-                * i = 1 + reductionFactor^(j+1) :: rounded down to integer
-                * Makes a :: y = e^x + 1 :: shaped curve from which to
+                * i = reductionFactor^(j+1) :: rounded down to integer
+                * Makes a :: y = e^x :: shaped curve from which to
                 * choose new indexes to include. 
                 * Low indices (1, 2, 3...) will almost always be included
                 * but higher indices are skipped with increasing frequency.
                 */
-                i = 1 + (int)Math.Floor(Math.Pow(reductionFactor,++j));;
+                i = (int)Math.Floor(Math.Pow(reductionFactor,++j));;
             }
-            return indices;
+
+            float[] reducedArray = new float[reducedLength];
+
+            for (int i = 0; i < reducedLength; i++){
+                reducedArray[i] = reducedData[i];
+            }
+
+            return new SignalData(  dataPacket.TimeAmplitude, 
+                                    reducedArray, 
+                                    dataPacket.BufferSize, 
+                                    dataPacket.SampleRate
+                                    );
         }
     }
 }

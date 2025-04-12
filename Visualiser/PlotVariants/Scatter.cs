@@ -132,6 +132,12 @@ namespace Visualiser
 
         private void FreqLogLog(SignalData dataPacket)
         {
+            Debug.Log("LENGTH SHOULD DECREASE");
+            Debug.Log(dataPacket.FreqMagnitude.Length);
+            // Data Reduction Step
+            dataPacket = Utils.ReduceSpectrumData(dataPacket);
+            Debug.Log(dataPacket.FreqMagnitude.Length);
+
             // Initialise arrays of the correct size to hold the plot data
             int N =  dataPacket.FreqMagnitude.Length;
             int bufferSize = dataPacket.BufferSize;
@@ -159,12 +165,9 @@ namespace Visualiser
                 freqAxis[i] = (float)Math.Log10(freqRes + freqRes*i)/(float)Math.Log10(bufferSize);
             }
             // Determines values and applies log scaling for magnitude axis
-            for (int i = 0; i < bufferSize; i++){
+            for (int n = 0; n < N; n++){
                 // Uses voltage decibel scale: y (dB) = 20 * log10(x/ref)
-                dataArray[i] = 20f*(float)Math.Log10(dataArray[i]);
-
-                // Out of bounds pixel behaviour
-                //outOfBounds(i, minDbVal, "hide");
+                dataArray[n] = 20f*(float)Math.Log10(dataArray[n]);
             }
 
             // ---- PLOT POSITIONS ----
