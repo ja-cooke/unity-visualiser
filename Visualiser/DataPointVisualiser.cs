@@ -43,7 +43,7 @@ namespace Visualiser
             audioSource = audioObject.GetComponent<AudioSource>();
             
             // Load the resource for the AudioClip
-            AudioClip audioClip = Resources.Load<AudioClip>("test2");
+            AudioClip audioClip = this.GetComponent<AudioSource>().clip;
             // Load the resource into the AudioSource
             audioSource.clip = audioClip;
             audioSource.Play();
