@@ -1,6 +1,4 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.XR;
 
 namespace Visualiser {
     public class ScatterPoint : Point
