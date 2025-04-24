@@ -14,6 +14,10 @@ namespace Visualiser
                 {ChartType.Scatter, new Scatter(graphBoundaryT, bufferSize, scatterType)}
             };
             plot = method[chartType];
+
+            // Turn off rendering for the sample material and text.
+            graphBoundaryT.parent.Find("SampleMaterial").GetComponent<MeshRenderer>().enabled = false;
+            graphBoundaryT.parent.Find("Orientation").GetComponent<MeshRenderer>().enabled = false;
         }
 
         public void Update(SignalData dataPacket)

@@ -24,6 +24,9 @@ namespace Visualiser {
             Primitive.transform.localScale = Vector3.one * PixelScale;
             // Set all meshes to invisible by default
             Visible(false);
+
+            // Next will set the material for the points
+            Primitive.GetComponent<MeshRenderer>().material = GraphBoundaryT.parent.Find("SampleMaterial").GetComponent<MeshRenderer>().material;
         }
 
         // ---- METHODS ----

@@ -42,14 +42,15 @@ namespace Visualiser
             audioObject = new GameObject("audioObject", typeof(AudioSource));
             audioSource = audioObject.GetComponent<AudioSource>();
             
-            // Load the resource for the AudioClip
+            // Load the resource for the AudioClip from the Visualiser object
             AudioClip audioClip = this.GetComponent<AudioSource>().clip;
             // Load the resource into the AudioSource
             audioSource.clip = audioClip;
+            Debug.Log(audioSource.clip);
             audioSource.Play();
 
             // Find the Graph Boundary
-            graphBoundaryT = this.transform.Find(visualiserBoundary);
+            graphBoundaryT = this.GetComponent<Transform>();
 
             Debug.Log("GRAPH BOUNDARY TEST:");
             Debug.Log(graphBoundaryT.gameObject.name);
