@@ -36,10 +36,10 @@ namespace Visualiser
 
     public struct ProcessedData
     {
-        public ProcessedData(SignalData signalData)
+        public ProcessedData(SignalData rawSignalData, SignalData processedData)
         {
-            Raw = signalData;
-            Processed = new SignalData();
+            Raw = rawSignalData;
+            Processed = processedData;
             SpectralFlux = 0f;
             MMFCs = new float[0];
             CustomFFT = new float[0];

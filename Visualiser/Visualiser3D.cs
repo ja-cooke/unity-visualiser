@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Visualiser 
 {
-    public class DataPointVisualiser
+    public class Visualiser3D
     {
         private MonoBehaviour Visualiser;
         // ---------------------------------------------------------- //
@@ -30,14 +30,17 @@ namespace Visualiser
         private GameObject audioObject;
         private AudioSource audioSource;
         private Plot Plot;
-        private float[] audioDataArray = new float[audioBufferSize];
-        private float[] freqDataArray = new float[audioBufferSize];
+        private SignalProcessor SignalProcessor;
+        private float[] audioDataLeft = new float[audioBufferSize];
+        private float[] audioDataRight = new float[audioBufferSize];
+        private float[] freqDataLeft = new float[audioBufferSize];
+        private float[] freqDataRight = new float[audioBufferSize];
 
         // ---------------------------------------------------------- //
         private ChartType ChartType { get; }
         private SubChartType ScatterType { get; }
         
-        public DataPointVisualiser(MonoBehaviour visualiser, ChartType chartType, SubChartType subChartType)
+        public Visualiser3D(MonoBehaviour visualiser, ChartType chartType, SubChartType subChartType)
         {
             Visualiser = visualiser;
             ChartType = chartType;
@@ -63,21 +66,32 @@ namespace Visualiser
             graphBoundaryT = Visualiser.GetComponent<Transform>();
 
             Plot = new Plot(graphBoundaryT, audioBufferSize, ChartType, ScatterType);
+
+            SignalProcessor SignalProcessor = new(audioSource, audioBufferSize);
         }
 
         // Update is called once per frame
         public void Update()
         {
-            // Replenishes audio data
-            audioSource.GetOutputData(audioDataArray, 1);
-            audioSource.GetSpectrumData(freqDataArray, 1, FFTWindow.BlackmanHarris);
+            // ----- Replenishes audio data ----------------------------
+            audioSource.GetOutputData(audioDataLeft, 1);
+            audioSource.GetOutputData(audioDataRight, 2);
+            audioSource.GetSpectrumData(freqDataLeft, 1, FFTWindow.BlackmanHarris);
+            audioSource.GetSpectrumData(freqDataRight, 2, FFTWindow.BlackmanHarris);
 
-            SignalData audioDataPacket = new(audioDataArray, freqDataArray, audioBufferSize, audioSource.clip.frequency);
+            SignalData audioDataPacketLeft = new(audioDataLeft, freqDataLeft, audioBufferSize, audioSource.clip.frequency);
+            SignalData audioDataPacketRight = new(audioDataRight, freqDataRight, audioBufferSize, audioSource.clip.frequency);
+            
+            // ----------- PERFORM SIGNAL PROCESSING -------------------
+            SignalProcessor.Update();
+            SignalProcessor.SumToMono();
+            ProcessedData processedData = SignalProcessor.GetProcessedData(); 
 
+            // ----------- UPDATE THE VISUALISER ------------------------
             // Refreshes the visualiser
             if (audioSource.isPlaying & (audioSource.time != 0))
             {
-                Plot.Update(audioDataPacket);
+                Plot.Update(processedData.Processed);
             }
             
         }
