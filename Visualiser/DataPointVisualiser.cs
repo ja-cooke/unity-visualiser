@@ -75,7 +75,11 @@ namespace Visualiser
             SignalData audioDataPacket = new(audioDataArray, freqDataArray, audioBufferSize, audioSource.clip.frequency);
 
             // Refreshes the visualiser
-            Plot.Update(audioDataPacket);
+            if (audioSource.isPlaying)
+            {
+                Plot.Update(audioDataPacket);
+            }
+            
         }
     }
 }
