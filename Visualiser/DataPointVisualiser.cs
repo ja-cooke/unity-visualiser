@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace Visualiser 
 {
-    public class DataPointVisualiser : MonoBehaviour
+    public class DataPointVisualiser
     {
+        private MonoBehaviour Visualiser;
         // ---------------------------------------------------------- //
         // ----------------------- CONFIGURATION -------------------- //
         // ---------------------------------------------------------- //
@@ -28,38 +29,44 @@ namespace Visualiser
         private Transform graphBoundaryT;
         private GameObject audioObject;
         private AudioSource audioSource;
-        private Plot visualiser;
+        private Plot Plot;
         private float[] audioDataArray = new float[audioBufferSize];
         private float[] freqDataArray = new float[audioBufferSize];
+
+        // ---------------------------------------------------------- //
+        private ChartType ChartType { get; }
+        private SubChartType ScatterType { get; }
+        
+        public DataPointVisualiser(MonoBehaviour visualiser, ChartType chartType, SubChartType subChartType)
+        {
+            Visualiser = visualiser;
+            ChartType = chartType;
+            ScatterType = subChartType;
+        }
 
         // ---------------------------------------------------------- //
         // ----------------------- METHODS -------------------------- //
         // ---------------------------------------------------------- //
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        public void Start()
         {
-            audioObject = new GameObject("audioObject", typeof(AudioSource));
+            audioObject = Visualiser.gameObject;
             audioSource = audioObject.GetComponent<AudioSource>();
             
             // Load the resource for the AudioClip from the Visualiser object
-            AudioClip audioClip = this.GetComponent<AudioSource>().clip;
+            AudioClip audioClip = Visualiser.GetComponent<AudioSource>().clip;
             // Load the resource into the AudioSource
             audioSource.clip = audioClip;
-            Debug.Log(audioSource.clip);
-            audioSource.Play();
 
             // Find the Graph Boundary
-            graphBoundaryT = this.GetComponent<Transform>();
+            graphBoundaryT = Visualiser.GetComponent<Transform>();
 
-            Debug.Log("GRAPH BOUNDARY TEST:");
-            Debug.Log(graphBoundaryT.gameObject.name);
-
-            visualiser = new Plot(graphBoundaryT, audioBufferSize, ChartType.Scatter, ScatterType.FreqLogLog);
+            Plot = new Plot(graphBoundaryT, audioBufferSize, ChartType, ScatterType);
         }
 
         // Update is called once per frame
-        void Update()
+        public void Update()
         {
             // Replenishes audio data
             audioSource.GetOutputData(audioDataArray, 1);
@@ -68,7 +75,7 @@ namespace Visualiser
             SignalData audioDataPacket = new(audioDataArray, freqDataArray, audioBufferSize, audioSource.clip.frequency);
 
             // Refreshes the visualiser
-            visualiser.Update(audioDataPacket);
+            Plot.Update(audioDataPacket);
         }
     }
 }

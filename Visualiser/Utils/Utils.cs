@@ -3,15 +3,16 @@ using UnityEngine;
 
 namespace Visualiser
 {
-    public enum ScatterType 
+    public enum SubChartType
     {
-        TimeLin,
-        FreqLin,
-        FreqLog,
-        FreqLogLog,
-        FreqLogLogE,
-    };
-
+        // Scatter charts
+        ScatterTimeLin,
+        ScatterFreqLin,
+        ScatterFreqLog,
+        ScatterFreqLogLog,
+        // Bar charts
+    }
+    
     public enum ChartType 
     {
         Scatter,

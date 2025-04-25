@@ -6,12 +6,12 @@ namespace Visualiser
 {
     public class Scatter : Chart
     {
-        private readonly ScatterType ScatterType;
+        private readonly SubChartType ScatterType;
         private readonly ScatterPointSeries Series;
         private float PeakMagnitude = 0;
         
             
-        public Scatter(Transform graphBoundaryT, int bufferSize, ScatterType scatterType){
+        public Scatter(Transform graphBoundaryT, int bufferSize, SubChartType scatterType){
             ScatterType = scatterType;
             
             // Instantiate GameObjects in the game world
@@ -20,12 +20,12 @@ namespace Visualiser
 
         public override void Update(SignalData dataPacket)
         {
-            Dictionary<ScatterType, Action<SignalData>> axes = new()
+            Dictionary<SubChartType, Action<SignalData>> axes = new()
             {
-                {ScatterType.TimeLin, TimeLin},
-                {ScatterType.FreqLin, FreqLin},
-                {ScatterType.FreqLog, FreqLog},
-                {ScatterType.FreqLogLog, FreqLogLog},
+                {SubChartType.ScatterTimeLin, TimeLin},
+                {SubChartType.ScatterFreqLin, FreqLin},
+                {SubChartType.ScatterFreqLog, FreqLog},
+                {SubChartType.ScatterFreqLogLog, FreqLogLog},
             };
 
             axes[ScatterType](dataPacket);
