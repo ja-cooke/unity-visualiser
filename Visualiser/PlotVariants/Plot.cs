@@ -11,7 +11,8 @@ namespace Visualiser
         public Plot(Transform graphBoundaryT, int bufferSize, ChartType chartType, SubChartType subChartType)
         {       
             Dictionary<ChartType, Chart> method = new Dictionary<ChartType, Chart>{
-                {ChartType.Scatter, new Scatter(graphBoundaryT, bufferSize, subChartType)}
+                {ChartType.Scatter, new Scatter(graphBoundaryT, bufferSize, subChartType)},
+                {ChartType.ScatterStretch, new ScatterStretch(graphBoundaryT, bufferSize, subChartType)},
             };
             plot = method[chartType];
 
@@ -21,6 +22,11 @@ namespace Visualiser
         }
 
         public void Update(SignalData dataPacket)
+        {
+            plot.Update(dataPacket);
+        }
+
+        public void Update(ProcessedData dataPacket)
         {
             plot.Update(dataPacket);
         }

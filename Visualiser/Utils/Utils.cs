@@ -10,12 +10,15 @@ namespace Visualiser
         ScatterFreqLin,
         ScatterFreqLog,
         ScatterFreqLogLog,
+        // ScatterStretch charts
+        ScatterStretchFreqLogLog,
         // Bar charts
     }
     
     public enum ChartType 
     {
         Scatter,
+        ScatterStretch,
         Bar,
     };
 
@@ -36,29 +39,32 @@ namespace Visualiser
 
     public struct ProcessedData
     {
-        public ProcessedData(SignalData rawSignalData, SignalData processedData)
+        public ProcessedData(SignalData[] rawSignalData, SignalData[] processedData)
         {
             Raw = rawSignalData;
             Processed = processedData;
             SpectralFlux = 0f;
-            MMFCs = new float[0];
-            CustomFFT = new float[0];
+            MMFCs = null;
+            Mono = new SignalData();
+            Side = new SignalData();
         }
-        public SignalData Raw { get; }
-        public SignalData Processed { get; }
-        public float SpectralFlux { get; }
-        public float[] MMFCs { get; }
-        public float[] CustomFFT { get; }
+        public SignalData[] Raw { get; }
+        public SignalData[] Processed { get; set; }
+        public SignalData Mono { get; set; }
+        public SignalData Side { get; set; }
+        public float SpectralFlux { get; set; }
+        public float[] MMFCs { get; set; }
     };
     
     public struct RefinedData
     {
         public int NumPoints;
-        public SignalData ReducedRaw { get; set; }
-        public SignalData ReducedProcessed { get; set; }
+        public SignalData[] ReducedRaw { get; set; }
+        public SignalData[] ReducedProcessed { get; set; }
+        public SignalData ReducedMono { get; set; }
+        public SignalData ReducedSide { get; set; }
         public float SpectralFlux { get; set; }
-        public float[] MMFCs { get; set; }
-        public float[] CustomFFT { get; set; }
+        public float[] ReducedMMFCs { get; set; }
     }
 
     public struct PlotData3
@@ -139,6 +145,61 @@ namespace Visualiser
                                     dataPacket.BufferSize, 
                                     dataPacket.SampleRate
                                     );
+        }
+
+        public static RefinedData ReduceSpectrumData(ProcessedData dataPacket)
+        {
+            float reductionFactor = 3.0f;
+            int frameLength = dataPacket.Mono.FreqMagnitude.Length;
+            float[] reducedDataMono = new float[frameLength];
+            float[] reducedDataSide = new float[frameLength];
+
+            float[] x = dataPacket.Mono.FreqMagnitude;
+            float[] y = dataPacket.Side.FreqMagnitude;
+
+            float lastElement = 0;
+            int reducedLength = 0;
+            int j = 0;
+            for (int i = 0; i < frameLength; i++){
+                // If this element hasn't already been added:
+                if (x[i] != lastElement){
+                    reducedDataMono[i] = x[i];
+                    reducedDataSide[i] = y[i];
+                    lastElement = x[i];
+                    reducedLength++;
+                }
+                /* 
+                * i = j + reductionFactor^(j/4) - 1 :: rounded down to integer
+                * Makes a :: y = x + e^kx :: shaped curve from which to
+                * choose new indexes to include. 
+                * Low indices (1, 2, 3...) will almost always be included
+                * but higher indices are skipped with increasing frequency.
+                */
+                i = j + (int)Math.Floor(Math.Pow(reductionFactor,(float)++j/150f)) - 1;
+            }
+
+            float[] reducedArrayMono = new float[reducedLength];
+            float[] reducedArraySide = new float[reducedLength];
+
+            for (int i = 0; i < reducedLength; i++){
+                reducedArrayMono[i] = reducedDataMono[i];
+                reducedArraySide[i] = reducedDataSide[i];
+            }
+
+            RefinedData refinedData = new();
+            
+            refinedData.ReducedMono = new SignalData(   dataPacket.Mono.TimeAmplitude, 
+                                                        reducedArrayMono, 
+                                                        dataPacket.Mono.BufferSize, 
+                                                        dataPacket.Mono.SampleRate
+                                                        );
+
+            refinedData.ReducedSide = new SignalData(   dataPacket.Side.TimeAmplitude, 
+                                                        reducedArraySide, 
+                                                        dataPacket.Side.BufferSize, 
+                                                        dataPacket.Side.SampleRate
+                                                        );
+            return refinedData;
         }
     }
 }

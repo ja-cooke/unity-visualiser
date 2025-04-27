@@ -67,31 +67,25 @@ namespace Visualiser
 
             Plot = new Plot(graphBoundaryT, audioBufferSize, ChartType, ScatterType);
 
-            SignalProcessor SignalProcessor = new(audioSource, audioBufferSize);
+            SignalProcessor = new(audioSource, audioBufferSize);
         }
 
         // Update is called once per frame
         public void Update()
         {
             // ----- Replenishes audio data ----------------------------
-            audioSource.GetOutputData(audioDataLeft, 1);
-            audioSource.GetOutputData(audioDataRight, 2);
-            audioSource.GetSpectrumData(freqDataLeft, 1, FFTWindow.BlackmanHarris);
-            audioSource.GetSpectrumData(freqDataRight, 2, FFTWindow.BlackmanHarris);
-
-            SignalData audioDataPacketLeft = new(audioDataLeft, freqDataLeft, audioBufferSize, audioSource.clip.frequency);
-            SignalData audioDataPacketRight = new(audioDataRight, freqDataRight, audioBufferSize, audioSource.clip.frequency);
-            
-            // ----------- PERFORM SIGNAL PROCESSING -------------------
             SignalProcessor.Update();
+
+            // ----------- PERFORM SIGNAL PROCESSING -------------------
             SignalProcessor.SumToMono();
+            SignalProcessor.SideImage();
             ProcessedData processedData = SignalProcessor.GetProcessedData(); 
 
             // ----------- UPDATE THE VISUALISER ------------------------
             // Refreshes the visualiser
             if (audioSource.isPlaying & (audioSource.time != 0))
             {
-                Plot.Update(processedData.Processed);
+                Plot.Update(processedData);
             }
             
         }

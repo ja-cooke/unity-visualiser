@@ -6,6 +6,8 @@ namespace Visualiser
 
         public virtual void Update(SignalData dataPacket){}
 
+        public virtual void Update(ProcessedData dataPacket){}
+
         public ScatterPointSeries GetSeries()
         {
             return Series;
