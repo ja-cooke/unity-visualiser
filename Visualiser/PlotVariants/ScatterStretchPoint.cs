@@ -15,6 +15,8 @@ namespace Visualiser {
             Coordinates = Vector3.zero;
             GameObject primitive = GameObject.CreatePrimitive(primitiveType);
             Primitive = primitive;
+            Collider collider = Primitive.GetComponent<Collider>();
+            collider.enabled = false;
 
             // Set the parent as the GraphBoundary
             Primitive.transform.SetParent(GraphBoundaryT);
@@ -22,6 +24,8 @@ namespace Visualiser {
             Primitive.transform.localPosition = Vector3.zero;
             // Scale the size of each individual cube
             Primitive.transform.localScale = Vector3.one * PixelScale;
+            // For some reason points are initalised out of the expected rotation
+            Primitive.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
             // Set all meshes to invisible by default
             Visible(false);
 
@@ -36,7 +40,8 @@ namespace Visualiser {
 
             if (!float.IsNaN(Coordinates.y * Coordinates.z)) // Ignore NaN in X
             {
-                Primitive.transform.localPosition = new Vector3(0, Coordinates.y, Coordinates.z);
+                // z position shifted by PixelScale/2 to prevent primitive mesh from crossing the boundary
+                Primitive.transform.localPosition = new Vector3(0, Coordinates.y, Coordinates.z - PixelScale/2);
                 // Stretching along the x-axis is acheived using a z-axis scale
                 Primitive.transform.localScale = new Vector3(PixelScale, PixelScale, Coordinates.x);
                 Visible(true);

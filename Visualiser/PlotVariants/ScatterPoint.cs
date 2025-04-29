@@ -16,6 +16,10 @@ namespace Visualiser {
             GameObject primitive = GameObject.CreatePrimitive(primitiveType);
             Primitive = primitive;
 
+            // Remove the physics properties of the primitive
+            Collider collider = Primitive.GetComponent<Collider>();
+            collider.enabled = false;
+
             // Set the parent as the GraphBoundary
             Primitive.transform.SetParent(GraphBoundaryT);
             // Set the coordinates to local to the graph boundary
