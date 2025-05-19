@@ -1,7 +1,15 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 
 namespace Visualiser 
 {
+    /// <summary>
+    /// Visualiser Enginer Controller Class
+    /// Called by prefabs to access and control the visualiser engine.
+    /// 
+    /// This one is called by MidSideSpectrogram and features support
+    /// for the SignalProcessor class.
+    /// </summary>
     public class Visualiser3D
     {
         private MonoBehaviour Visualiser;

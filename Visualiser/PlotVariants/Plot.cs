@@ -1,8 +1,13 @@
+/// Author: Jonathan Cooke
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Visualiser 
 {
+    /// <summary>
+    /// Interface between the Engine Controller and the plot functions
+    /// calls the chosen Chart class and subclass using the dictionary.
+    /// </summary>
     public class Plot
     {
         private Chart plot;

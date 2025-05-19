@@ -1,11 +1,19 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 
 namespace Visualiser {
+    /// <summary>
+    /// Point class used by the ScatterStretch Chart class.
+    /// Very similar to ScatterPoint, but with more stretch!
+    /// </summary>
     public class ScatterStretchPoint : Point
     {
         // ---- PROPERTIES ----
         public override Vector3 Coordinates { get; set; }
         private readonly GameObject Primitive;
+        /// <summary>
+        /// Scale of the cube mesh for each point. Set at compile time.
+        /// </summary>
         private readonly float PixelScale = 0.01f;
         private bool IsVisible { get; set; }
         
@@ -44,10 +52,13 @@ namespace Visualiser {
                 Primitive.transform.localPosition = new Vector3(0, Coordinates.y, Coordinates.z - PixelScale/2);
                 // Stretching along the x-axis is acheived using a z-axis scale
                 Primitive.transform.localScale = new Vector3(PixelScale, PixelScale, Coordinates.x);
+                // Point is included in the plot and made visible.
                 Visible(true);
             }
             else
             {
+                // If any of the coordinates are NaN the point is removed
+                // from the plot.
                 Primitive.transform.localPosition = Vector3.zero;
                 Primitive.transform.localScale = new Vector3(PixelScale, PixelScale, PixelScale);
                 Visible(false);
@@ -55,6 +66,10 @@ namespace Visualiser {
 
         }
 
+        /// <summary>
+        /// Controls the visibility of the data point mesh in the game scene.
+        /// </summary>
+        /// <param name="isVisible"></param>
         public void Visible(bool isVisible)
         {
             Primitive.GetComponent<MeshRenderer>().enabled = isVisible;

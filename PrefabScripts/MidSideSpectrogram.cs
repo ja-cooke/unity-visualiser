@@ -1,6 +1,10 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 using Visualiser;
 
+/// <summary>
+/// Class <c>MidSideSpectrogram<\c>. Script for the MidSideSpectrogram visualiser prefab.
+/// </summary>
 public class MidSideSpectrogram : MonoBehaviour
 {
     Visualiser3D Visualiser;

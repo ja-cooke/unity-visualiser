@@ -1,7 +1,12 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 
 namespace Visualiser
 {
+    /// <summary>
+    /// General template for Point classes.
+    /// Represent an individual data point in a visualisation.
+    /// </summary>
     public abstract class Point {
         
         // --- PROPERTIES ----

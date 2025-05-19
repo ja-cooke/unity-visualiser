@@ -1,7 +1,15 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 
 namespace Visualiser 
 {
+    /// <summary>
+    /// Visualiser Enginer Controller Class
+    /// Called by prefabs to access and control the visualiser engine.
+    /// 
+    /// This one is called by prefabs except for MidSideSpectrogram and
+    /// performs signal processing itself.
+    /// </summary>
     public class DataPointVisualiser
     {
         private MonoBehaviour Visualiser;
@@ -68,10 +76,12 @@ namespace Visualiser
         // Update is called once per frame
         public void Update()
         {
+            // -------- SIGNAL PROCESSING STEP ------------------
             // Replenishes audio data
             audioSource.GetOutputData(audioDataArray, 1);
             audioSource.GetSpectrumData(freqDataArray, 1, FFTWindow.BlackmanHarris);
 
+            // Package the data for visualisation
             SignalData audioDataPacket = new(audioDataArray, freqDataArray, audioBufferSize, audioSource.clip.frequency);
 
             // Refreshes the visualiser

@@ -1,5 +1,9 @@
+/// Author: Jonathan Cooke
 namespace Visualiser
 {
+    /// <summary>
+    /// General template for Chart classes
+    /// </summary>
     public abstract class Chart
     {
         private ScatterPointSeries Series;

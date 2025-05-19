@@ -1,3 +1,4 @@
+/// Author: Jonathan Cooke
 using System;
 using System.Diagnostics;
 using System.Security.Authentication.ExtendedProtection;
@@ -9,6 +10,15 @@ using UnityEngine.PlayerLoop;
 
 namespace Visualiser
 {
+    /// <summary>
+    /// Class for performing digital signal processing operations.
+    /// 
+    /// The processed data is held in class and reprocessed in series
+    /// each time a new processing method is called.
+    /// 
+    /// Use the GetProcessedData() getter to return the processed data
+    /// when you have applied the desired operations.
+    /// </summary>
     public class SignalProcessor
     {
         private ProcessedData ProcessedDataPacket;
@@ -23,13 +33,14 @@ namespace Visualiser
             BufferSize = bufferSize;
             Channels = AudioSource.clip.channels;
             SampleRate = AudioSource.clip.frequency;
-
         }
 
+        // Method to replenish the audio data from an audio source for each frame
         public void Update()
         {
             SignalData[] signalData = new SignalData[AudioSource.clip.channels];
 
+            // Multichannel audio supported!
             for (int n = 0; n < Channels; n++)
             {
                 float [] channelTimeData = new float[BufferSize];
@@ -49,11 +60,18 @@ namespace Visualiser
 
         }
 
+        /// <summary>
+        /// Returns the processed data with any changes that have been made
+        /// </summary>
+        /// <returns></returns>
         public ProcessedData GetProcessedData()
         {
             return ProcessedDataPacket;
         }
 
+        /// <summary>
+        /// Creates a mono signal from any number of channels
+        /// </summary>
         public void SumToMono()
         {
             float[] monoTime = new float[BufferSize];
@@ -73,6 +91,10 @@ namespace Visualiser
             ProcessedDataPacket.Mono = monoSignal;
         }
 
+        /// <summary>
+        /// Creates a side image. Supports stereo (2 channel) signals only.
+        /// Does not return a true side image for frequency.
+        /// </summary>
         public void SideImage()
         {
             if (Channels == 2)
@@ -82,8 +104,12 @@ namespace Visualiser
         
                 for (int i = 0; i < BufferSize; i++)
                 {
+                    // This is a true side image
                     sideTime[i] = ProcessedDataPacket.Processed[0].TimeAmplitude[i] - ProcessedDataPacket.Processed[1].TimeAmplitude[i];
                     // Force fourier magnitude differences to a positive value
+                    // -- Note that this means it is not a true side image.
+                    // Complex Fourier values are required for a true side image,
+                    // but the Unity API will only return magnitudes.
                     sideFreq[i] = Math.Abs(ProcessedDataPacket.Processed[0].FreqMagnitude[i] - ProcessedDataPacket.Processed[1].FreqMagnitude[i]);
                 }
 

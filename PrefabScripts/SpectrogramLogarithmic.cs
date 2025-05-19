@@ -1,6 +1,10 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 using Visualiser;
 
+/// <summary>
+/// Class <c>AudioWaveform<\c>. Script for the SpectrogramLogarithmic visualiser prefab.
+/// </summary>
 public class SpectrogramLogarithmic : MonoBehaviour
 {
     DataPointVisualiser Visualiser;

@@ -1,9 +1,14 @@
+/// Author: Jonathan Cooke
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Visualiser
 {
+    /// <summary>
+    /// Class used for 3D scatter plots.
+    /// Third axis coordinate is used to stretch points in that axis.
+    /// </summary>
     public class ScatterStretch : Chart
     {
         private readonly SubChartType ScatterStretchType;
@@ -29,6 +34,13 @@ namespace Visualiser
             axes[ScatterStretchType](dataPacket);
         }
 
+        /// <summary>
+        /// Plots a logarithmic frequency spectrum in a 3D space.
+        /// 
+        /// Magnitude axis is converted to dBFS scale.
+        /// Fun stretchy third axis to plot a third parameter!
+        /// </summary>
+        /// <param name="dataPacket"></param>
         private void FreqLogLog(ProcessedData dataPacket)
         {
             // Data Reduction Step

@@ -1,13 +1,22 @@
+/// Author: Jonathan Cooke
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Visualiser
 {
+    /// <summary>
+    /// Class used for 2D scatter plots.
+    /// Third axis position will be placed in the midpoint of the graph
+    /// boundary.
+    /// </summary>
     public class Scatter : Chart
     {
         private readonly SubChartType ScatterType;
         private readonly ScatterPointSeries Series;
+        /// <summary>
+        /// This is a peak value stored to help with normalisation.
+        /// </summary>
         private float PeakMagnitude = 0;
         
             
@@ -57,6 +66,10 @@ namespace Visualiser
             Series.Update(new PlotData3(xData, yData, zData));
         }
 
+        /// <summary>
+        /// Plots a linear 2D frequency spectrum in a 3D space.
+        /// </summary>
+        /// <param name="dataPacket"></param>
         private void FreqLin(SignalData dataPacket)
         {
             // Initialise arrays of the correct size to hold the plot data
@@ -82,6 +95,11 @@ namespace Visualiser
             Series.Update(new PlotData3(xData, yData, zData));
         }
 
+        /// <summary>
+        /// Plots a logarithmic 2D frequency spectrum in a 3D space.
+        /// Magnitude axis remains linear.
+        /// </summary>
+        /// <param name="dataPacket"></param>
         private void FreqLog(SignalData dataPacket)
         {
             // Initialise arrays of the correct size to hold the plot data
@@ -120,6 +138,12 @@ namespace Visualiser
             Series.Update(new PlotData3(xData, yData, zData));
         }
 
+        /// <summary>
+        /// Plots a logarithmic 2D frequency spectrum in a 3D space.
+        /// 
+        /// Magnitude axis is converted to dBFS scale.
+        /// </summary>
+        /// <param name="dataPacket"></param>
         private void FreqLogLog(SignalData dataPacket)
         {
             // Data Reduction Step

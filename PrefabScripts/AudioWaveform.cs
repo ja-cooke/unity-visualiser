@@ -1,6 +1,10 @@
+/// Author: Jonathan Cooke
 using UnityEngine;
 using Visualiser;
 
+/// <summary>
+/// Class <c>AudioWaveform<\c>. Script for the AudioWaveform visualiser prefab.
+/// </summary>
 public class AudioWaveform : MonoBehaviour
 {
     DataPointVisualiser Visualiser;
